@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -20,15 +20,18 @@ import {
     Box,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/Delete';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { RecordData } from './firebaseService';
 
-interface AddRecordModalProps {
+interface EditRecordModalProps {
     open: boolean;
     onClose: () => void;
-    onAdd: (recordData: Omit<RecordData, 'id' | 'createdAt' | 'updatedAt'>) => void;
+    onSave: (recordData: RecordData) => void;
+    onDelete?: (recordId: string) => void;
+    recordData: RecordData | null;
 }
 
 // Helper function to format today's date as DD/MM/YYYY
@@ -40,14 +43,15 @@ const getTodayFormatted = (): string => {
     return `${day}/${month}/${year}`;
 };
 
-const AddRecordModal: React.FC<AddRecordModalProps> = ({ open, onClose, onAdd }) => {
+const EditRecordModal: React.FC<EditRecordModalProps> = ({ open, onClose, onSave, onDelete, recordData }) => {
     const [recordName, setRecordName] = useState<string>('');
-    const [status, setStatus] = useState<string>('ປະສົມ');
+    const [status, setStatus] = useState<string>('');
     const [owner, setOwner] = useState<string>('');
     const [birthDate, setBirthDate] = useState<string>('');
-    const [breedingDate, setBreedingDate] = useState<string>(getTodayFormatted());
+    const [breedingDate, setBreedingDate] = useState<string>('');
     const [separationDate, setSeparationDate] = useState<string>('');
     const [estrusDate, setEstrusDate] = useState<string>('');
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
 
     // Calendar state
     const [calendarOpen, setCalendarOpen] = useState<boolean>(false);
@@ -55,40 +59,58 @@ const AddRecordModal: React.FC<AddRecordModalProps> = ({ open, onClose, onAdd })
     const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
     const [activeDateSetter, setActiveDateSetter] = useState<((date: string) => void) | null>(null);
 
+    // Load data when modal opens
+    useEffect(() => {
+        if (open && recordData) {
+            setRecordName(recordData.name);
+            setStatus(recordData.status || '');
+            setOwner(recordData.owner);
+            setBirthDate(recordData.birthDate || getTodayFormatted());
+            setBreedingDate(recordData.breedingDate || '');
+            setSeparationDate(recordData.separation_date || '');
+            setEstrusDate(recordData.estrus_date || '');
+        }
+    }, [open, recordData]);
+
     const handleSubmit = () => {
         if (recordName.trim()) {
-            const newRecord: Omit<RecordData, 'id' | 'createdAt' | 'updatedAt'> = {
+            const updatedData: RecordData = {
+                id: recordData?.id, // Keep the Firebase document ID
                 name: recordName.trim(),
                 status: status,
-                owner: owner,
-                breedingDate: breedingDate,
-                birthDate: birthDate,
+                owner,
+                breedingDate,
+                birthDate,
                 separation_date: separationDate,
                 estrus_date: estrusDate
             };
-
-            onAdd(newRecord);
-            // Reset form
-            setRecordName('');
-            setStatus('ປະສົມ');
-            setOwner('');
-            setBirthDate('');
-            setBreedingDate(getTodayFormatted());
-            setSeparationDate('');
-            setEstrusDate('');
+            onSave(updatedData);
             onClose();
         }
+    };
+
+    const handleDelete = () => {
+        if (recordData?.id && onDelete) {
+            onDelete(recordData.id);
+            setDeleteConfirmOpen(false);
+            onClose();
+        }
+    };
+
+    const handleDeleteClick = () => {
+        setDeleteConfirmOpen(true);
     };
 
     const handleClose = () => {
         // Reset form
         setRecordName('');
-        setStatus('ປະສົມ');
+        setStatus('');
         setOwner('');
         setBirthDate('');
-        setBreedingDate(getTodayFormatted());
+        setBreedingDate('');
         setSeparationDate('');
         setEstrusDate('');
+        setDeleteConfirmOpen(false);
         onClose();
     };
 
@@ -241,7 +263,7 @@ const AddRecordModal: React.FC<AddRecordModalProps> = ({ open, onClose, onAdd })
                         backgroundClip: 'text',
                     }}
                 >
-                    ເພີ່ມຂໍ້ມູນໃໝ່
+                    ແກ້ໄຂຂໍ້ມູນ
                 </Typography>
                 <IconButton
                     onClick={handleClose}
@@ -454,6 +476,7 @@ const AddRecordModal: React.FC<AddRecordModalProps> = ({ open, onClose, onAdd })
                         </Select>
                     </FormControl>
 
+
                     {/* วันผสมพันธุ์ */}
                     <TextField
                         label="ວັນປະສົມພັນ"
@@ -507,7 +530,6 @@ const AddRecordModal: React.FC<AddRecordModalProps> = ({ open, onClose, onAdd })
                             }
                         }}
                     />
-
                     {/* วันเกิด */}
                     <TextField
                         label="ວັນເກີດ"
@@ -847,54 +869,191 @@ const AddRecordModal: React.FC<AddRecordModalProps> = ({ open, onClose, onAdd })
                 p: 3,
                 gap: 2,
                 background: 'linear-gradient(135deg, rgba(100, 181, 246, 0.05) 0%, rgba(255, 112, 67, 0.05) 100%)',
+                justifyContent: 'space-between',
             }}>
-                <Button
-                    onClick={handleClose}
-                    variant="outlined"
-                    sx={{
-                        color: '#b0b3c7',
-                        borderColor: 'rgba(100, 181, 246, 0.3)',
-                        borderRadius: '12px',
-                        px: 3,
-                        '&:hover': {
-                            borderColor: '#64b5f6',
-                            backgroundColor: 'rgba(100, 181, 246, 0.1)',
-                            color: '#64b5f6',
-                            boxShadow: '0 0 15px rgba(100, 181, 246, 0.2)',
-                        },
-                        fontSize: '0.9rem',
-                        fontWeight: 600,
-                    }}
-                >
-                    ຍົກເລີກ
-                </Button>
-                <Button
-                    onClick={handleSubmit}
-                    variant="contained"
-                    disabled={!recordName.trim()}
-                    sx={{
-                        background: 'linear-gradient(45deg, #64b5f6 30%, #ff7043 90%)',
-                        borderRadius: '12px',
-                        px: 3,
-                        boxShadow: '0 8px 25px rgba(100, 181, 246, 0.3)',
-                        '&:hover': {
-                            background: 'linear-gradient(45deg, #42a5f5 30%, #ff5722 90%)',
-                            boxShadow: '0 12px 35px rgba(100, 181, 246, 0.4)',
-                        },
-                        '&:disabled': {
-                            background: 'rgba(176, 179, 199, 0.2)',
-                            color: 'rgba(176, 179, 199, 0.5)',
-                        },
-                        fontSize: '0.9rem',
-                        fontWeight: 600,
-                        color: '#ffffff',
-                    }}
-                >
-                    ບັນທຶກ
-                </Button>
+                {/* Delete Button */}
+                {onDelete && recordData?.id && (
+                    <Button
+                        onClick={handleDeleteClick}
+                        variant="outlined"
+                        startIcon={<DeleteIcon />}
+                        sx={{
+                            color: '#f44336',
+                            borderColor: 'rgba(244, 67, 54, 0.3)',
+                            borderRadius: '12px',
+                            px: 3,
+                            '&:hover': {
+                                borderColor: '#f44336',
+                                backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                                color: '#f44336',
+                                boxShadow: '0 0 15px rgba(244, 67, 54, 0.2)',
+                            },
+                            fontSize: '0.9rem',
+                            fontWeight: 600,
+                        }}
+                    >
+                        ລົບ
+                    </Button>
+                )}
+
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Button
+                        onClick={handleClose}
+                        variant="outlined"
+                        sx={{
+                            color: '#b0b3c7',
+                            borderColor: 'rgba(100, 181, 246, 0.3)',
+                            borderRadius: '12px',
+                            px: 3,
+                            '&:hover': {
+                                borderColor: '#64b5f6',
+                                backgroundColor: 'rgba(100, 181, 246, 0.1)',
+                                color: '#64b5f6',
+                                boxShadow: '0 0 15px rgba(100, 181, 246, 0.2)',
+                            },
+                            fontSize: '0.9rem',
+                            fontWeight: 600,
+                        }}
+                    >
+                        ຍົກເລີກ
+                    </Button>
+                    <Button
+                        onClick={handleSubmit}
+                        variant="contained"
+                        disabled={!recordName.trim()}
+                        sx={{
+                            background: 'linear-gradient(45deg, #64b5f6 30%, #ff7043 90%)',
+                            borderRadius: '12px',
+                            px: 3,
+                            boxShadow: '0 8px 25px rgba(100, 181, 246, 0.3)',
+                            '&:hover': {
+                                background: 'linear-gradient(45deg, #42a5f5 30%, #ff5722 90%)',
+                                boxShadow: '0 12px 35px rgba(100, 181, 246, 0.4)',
+                            },
+                            '&:disabled': {
+                                background: 'rgba(176, 179, 199, 0.2)',
+                                color: 'rgba(176, 179, 199, 0.5)',
+                            },
+                            fontSize: '0.9rem',
+                            fontWeight: 600,
+                            color: '#ffffff',
+                        }}
+                    >
+                        ບັນທຶກ
+                    </Button>
+                </Box>
             </DialogActions>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog
+                open={deleteConfirmOpen}
+                onClose={() => setDeleteConfirmOpen(false)}
+                maxWidth="xs"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        background: 'linear-gradient(135deg, rgba(26, 29, 58, 0.95) 0%, rgba(45, 27, 105, 0.95) 100%)',
+                        backdropFilter: 'blur(20px)',
+                        border: '1px solid rgba(244, 67, 54, 0.3)',
+                        borderRadius: '20px',
+                        boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
+                        color: '#ffffff',
+                    },
+                }}
+            >
+                <DialogTitle sx={{
+                    background: 'linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(244, 67, 54, 0.05) 100%)',
+                    borderBottom: '1px solid rgba(244, 67, 54, 0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    pb: 2,
+                    pt: 3,
+                }}>
+                    <Typography
+                        variant="h6"
+                        sx={{
+                            fontSize: '1.1rem',
+                            fontWeight: 700,
+                            color: '#f44336',
+                            textAlign: 'center',
+                        }}
+                    >
+                        ຢືນຢັນການລົບ
+                    </Typography>
+                </DialogTitle>
+
+                <DialogContent sx={{ py: 3, textAlign: 'center' }}>
+                    <Typography
+                        variant="body1"
+                        sx={{
+                            color: '#ffffff',
+                            fontSize: '0.95rem',
+                            mb: 1,
+                        }}
+                    >
+                        ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລົບຂໍ້ມູນນີ້?
+                    </Typography>
+                    <Typography
+                        variant="body2"
+                        sx={{
+                            color: '#b0b3c7',
+                            fontSize: '0.85rem',
+                            fontStyle: 'italic',
+                        }}
+                    >
+                        ການດຳເນີນງານນີ້ບໍ່ສາມາດຍົກເລີກໄດ້
+                    </Typography>
+                </DialogContent>
+
+                <DialogActions sx={{
+                    borderTop: '1px solid rgba(244, 67, 54, 0.2)',
+                    p: 3,
+                    gap: 2,
+                    justifyContent: 'center',
+                }}>
+                    <Button
+                        onClick={() => setDeleteConfirmOpen(false)}
+                        variant="outlined"
+                        sx={{
+                            color: '#b0b3c7',
+                            borderColor: 'rgba(100, 181, 246, 0.3)',
+                            borderRadius: '12px',
+                            px: 3,
+                            '&:hover': {
+                                borderColor: '#64b5f6',
+                                backgroundColor: 'rgba(100, 181, 246, 0.1)',
+                                color: '#64b5f6',
+                            },
+                            fontSize: '0.9rem',
+                            fontWeight: 600,
+                        }}
+                    >
+                        ຍົກເລີກ
+                    </Button>
+                    <Button
+                        onClick={handleDelete}
+                        variant="contained"
+                        sx={{
+                            background: 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)',
+                            borderRadius: '12px',
+                            px: 3,
+                            boxShadow: '0 8px 25px rgba(244, 67, 54, 0.3)',
+                            '&:hover': {
+                                background: 'linear-gradient(45deg, #d32f2f 30%, #c62828 90%)',
+                                boxShadow: '0 12px 35px rgba(244, 67, 54, 0.4)',
+                            },
+                            fontSize: '0.9rem',
+                            fontWeight: 600,
+                            color: '#ffffff',
+                        }}
+                    >
+                        ລົບ
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Dialog>
     );
 };
 
-export default AddRecordModal;
+export default EditRecordModal;

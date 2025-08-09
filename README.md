@@ -1,122 +1,108 @@
-# บันทึกข้อมูลหนูไผ่ (Bamboo Rat Record)
+# Bamboo Rat Record Management System
 
-เว็บแอปพลิเคชันสำหรับการบันทึกและจัดการข้อมูลหนูไผ่ พัฒนาด้วย React + TypeScript + Material UI
+A mobile-first web application for managing bamboo rat breeding records with Firebase backend.
 
-## ฟีเจอร์หลัก
+## Features
 
-- 🌙 **ธีมมืด** - ปรับปรุงการมองเห็นและลดความเมื่อยล้าของสายตา
-- 📱 **Mobile-First Design** - ออกแบบเพื่อใช้งานบนมือถือเป็นหลัก
-- 🔍 **ระบบกรองข้อมูล** - กรองข้อมูลตามประเภทต่างๆ
-- ➕ **Floating Action Button** - ปุ่มเพิ่มข้อมูลที่ปรับตัวตามการเลื่อนหน้าจอ
-- 📊 **การแสดงผลแบบ Grid** - แสดงข้อมูลในรูปแบบ 2 คอลัมน์
-- 🎨 **UI สวยงาม** - ใช้ Material UI เพื่อความสวยงามและใช้งานง่าย
+- 📱 Mobile-first responsive design
+- � Bamboo rat record management
+- 🔄 Real-time data synchronization with Firebase
+- 📊 Status tracking (ປະສົມ, ຖືພາ, ລ້ຽງລູກ, ພັກຟື້ນ)
+- 👥 Multi-owner support
+- 📅 Date tracking for breeding, birth, separation, and estrus
+- 🗑️ Delete functionality with confirmation
+- 🎨 Modern dark theme UI
 
-## เทคโนโลยีที่ใช้
+## Tech Stack
 
-- **React 18** - JavaScript library สำหรับสร้าง UI
-- **TypeScript** - Type-safe JavaScript
-- **Material UI (MUI)** - React UI framework
-- **Emotion** - CSS-in-JS library
+- **Frontend**: React 18 with TypeScript
+- **UI Library**: Material-UI (MUI) v5
+- **Backend**: Firebase Firestore
+- **Authentication**: Firebase Auth (Anonymous)
+- **Hosting**: Firebase Hosting
+- **Build Tool**: Create React App
 
-## การติดตั้งและรัน
+## Getting Started
 
-1. **ติดตั้ง dependencies:**
+### Prerequisites
+
+- Node.js 16+
+- npm or yarn
+- Firebase CLI
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone <repository-url>
+   cd bamboo-rat-record
+   ```
+
+2. Install dependencies:
 
    ```bash
    npm install
    ```
 
-2. **เริ่มรันแอปพลิเคชัน:**
+3. Set up Firebase configuration in `src/firebase.ts`
 
+4. Start development server:
    ```bash
    npm start
    ```
 
-3. **เปิดเบราว์เซอร์ไปที่:**
-   ```
-   http://localhost:3000
-   ```
+## Deployment
 
-## การใช้งาน
-
-### การดูข้อมูล
-
-- ข้อมูลจะแสดงในรูปแบบการ์ด 2 คอลัมน์
-- แต่ละการ์ดจะแสดงรหัสของข้อมูล (เช่น A00001, A00002)
-
-### การกรองข้อมูล
-
-- ใช้ dropdown ด้านบนเพื่อเลือกประเภทข้อมูลที่ต้องการแสดง
-- ตัวเลือก: ข้อมูลระบบ, รายการทั้งหมด, รายการใหม่
-
-### การเพิ่มข้อมูล
-
-1. กดปุ่ม **+** (Floating Action Button) ที่มุมขวาล่าง
-2. ใส่รหัสข้อมูลในฟอร์ม
-3. กด "เพิ่มข้อมูล" เพื่อบันทึก
-
-### การโต้ตอบกับ FAB
-
-- ปุ่ม FAB จะซ่อนตัวเมื่อเลื่อนหน้าจอลง
-- จะแสดงกลับมาเมื่อเลื่อนหน้าจอขึ้น
-- ใช้ Fade animation เพื่อความนุ่มนวล
-
-## โครงสร้างโปรเจ็กต์
-
-```
-src/
-├── App.tsx              # Main component
-├── AddRecordModal.tsx   # Modal สำหรับเพิ่มข้อมูล
-├── index.tsx           # Entry point
-├── index.css          # Global styles
-└── ...
-```
-
-## การปรับแต่ง
-
-### เปลี่ยนสีธีม
-
-แก้ไขใน `App.tsx` ที่ `createTheme()`:
-
-```typescript
-const darkTheme = createTheme({
-  palette: {
-    primary: {
-      main: "#90caf9", // เปลี่ยนสีหลัก
-    },
-    // ...
-  },
-});
-```
-
-### เพิ่มข้อมูลเริ่มต้น
-
-แก้ไขใน `App.tsx` ที่ `initialRecordData`:
-
-```typescript
-const initialRecordData = [
-  { id: "A00001", status: "active" },
-  // เพิ่มข้อมูลเพิ่มเติม...
-];
-```
-
-## การ Build สำหรับ Production
+### Quick Deploy
 
 ```bash
-npm run build
+# Windows
+./deploy.bat
+
+# Linux/Mac
+chmod +x deploy.sh
+./deploy.sh
+
+# Manual
+npm run deploy
 ```
 
-ไฟล์ที่ build แล้วจะอยู่ในโฟลเดอร์ `build/`
+### First Time Setup
 
-## ฟีเจอร์ที่จะพัฒนาต่อ
+1. Install Firebase CLI:
 
-- [ ] การค้นหาข้อมูล
-- [ ] การแก้ไขข้อมูล
-- [ ] การลบข้อมูล
-- [ ] การบันทึกข้อมูลใน Local Storage
-- [ ] การ Export ข้อมูล
-- [ ] การ Import ข้อมูล
+   ```bash
+   npm install -g firebase-tools
+   ```
 
-## License
+2. Login to Firebase:
 
-This project is licensed under the MIT License.
+   ```bash
+   firebase login
+   ```
+
+3. Update `.firebaserc` with your Firebase project ID:
+
+   ```json
+   {
+     "projects": {
+       "default": "your-firebase-project-id"
+     }
+   }
+   ```
+
+4. Deploy:
+   ```bash
+   npm run deploy
+   ```
+
+For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+
+## Available Scripts
+
+- `npm start` - Start development server
+- `npm run build` - Build for production
+- `npm run deploy` - Build and deploy to Firebase
+- `npm run deploy:hosting` - Deploy only hosting
+- `npm test` - Run tests

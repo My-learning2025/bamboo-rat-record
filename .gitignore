@@ -8,7 +8,7 @@ node_modules/
 
 # Production
 /build
-
+.vscode
 # Misc
 .DS_Store
 .env.local
@@ -79,3 +79,8 @@ pids
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
+
+# Firebase cache
+.firebase/
+firebase-debug.log*
+firebase-debug.*.log

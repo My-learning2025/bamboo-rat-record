@@ -1,0 +1,16 @@
+services:
+  bambooratrecord:
+    image: bambooratrecord
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: production
+    ports:
+      - "0.0.0.0:8000:8000"
+    networks:
+      - bamboo-network
+
+networks:
+  bamboo-network:
+    driver: bridge
